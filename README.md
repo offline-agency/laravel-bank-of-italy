@@ -18,7 +18,7 @@ composer require offline-agency/laravel-bank-of-italy
 You need to publish config file with:
 
 ```bash
-php artisan vendor:publish --provider="OfflineAgency\LaravelFattureInCloudV2\LaravelFattureInCloudV2ServiceProvider"
+php artisan vendor:publish --provider="OfflineAgency\LaravelBankOfItaly\LaravelBankOfItalyServiceProvider"
 ```
 
 ## Usage
