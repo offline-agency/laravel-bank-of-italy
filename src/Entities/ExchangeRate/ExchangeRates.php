@@ -23,21 +23,29 @@ class ExchangeRates
         $exchange_rates = explode("\n", trim($exchange_rates_response));
         $exchange_rates = array_slice($exchange_rates, 1);
 
-        $this->items = array_map(function ($exchange_rate) {
-            $exchange_rate = explode(",", $exchange_rate);
+        $this->items = [];
 
-            $exchange_rate = [
-                'currency' => $exchange_rate[0],
-                'currencyIsoCode' => $exchange_rate[1],
-                'currencyUicCode' => $exchange_rate[2],
-                'rate' => $exchange_rate[3],
-                'rateConvention' => $exchange_rate[4],
-                'referenceDate' => $exchange_rate[5]
+        foreach ($exchange_rates as $exchange_rate) {
+            if (empty($exchange_rate)) {
+                continue;
+            }
+
+            $exchange_rate_parts = explode(',', $exchange_rate);
+
+            if (count($exchange_rate_parts) < 6) {
+                continue;
+            }
+
+            $parsed_exchange_rate = [
+                'currency' => $exchange_rate_parts[0],
+                'currencyIsoCode' => $exchange_rate_parts[1],
+                'currencyUicCode' => $exchange_rate_parts[2],
+                'rate' => $exchange_rate_parts[3],
+                'rateConvention' => $exchange_rate_parts[4],
+                'referenceDate' => $exchange_rate_parts[5]
             ];
 
-            return new ExchangeRate($exchange_rate);
-        }, array_filter($exchange_rates, function ($exchange_rate) {
-            return !empty($exchange_rate);
-        }));
+            $this->items[] = new ExchangeRate($parsed_exchange_rate);
+        }
     }
 }
