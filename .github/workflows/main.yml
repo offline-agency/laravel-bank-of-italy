@@ -2,10 +2,10 @@
 name: run-tests
 
 on:
-  # Run the workflow only for pull-requests whose *base* branch is master
+  # Run on every pull-request whose *base* branch is master — every push
+  # to that PR fires the 'synchronize' activity type.
   pull_request:
     branches: [master]
-    types: [opened, synchronize, reopened, ready_for_review]
 
 jobs:
   test:
