@@ -42,7 +42,7 @@ class ExchangeRateTest extends TestCase
 
         $this->assertInstanceOf(ExchangeRates::class, $response);
         $this->assertIsArray($response->getItems());
-        $this->assertCount(285, $response->getItems());
+        $this->assertCount(286, $response->getItems());
         $this->assertInstanceOf(ExchangeRateEntity::class, $response->getItems()[0]);
     }
 
