@@ -1,45 +1,54 @@
+# .github/workflows/run-tests.yml
 name: run-tests
 
 on:
-    push:
-        branches: [master]
-    pull_request:
-        branches: [master]
+  # Run on every pull-request whose *base* branch is master — every push
+  # to that PR fires the 'synchronize' activity type.
+  pull_request:
+    branches: [master]
 
 jobs:
-    test:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: true
-            matrix:
-                os: [ubuntu-latest, windows-latest]
-                php: [7.4, 8.0]
-                laravel: [8.*]
-                stability: [prefer-lowest, prefer-stable]
-                include:
-                    - laravel: 8.*
-                      testbench: ^6.6
+  test:
+    runs-on: ${{ matrix.os }}
 
-        name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        php: [8.2, 8.3, 8.4, 8.5]
+        laravel: ['10.*', '11.*', '12.*']
+        stability: [prefer-lowest, prefer-stable]
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-                  extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
-                  coverage: none
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Setup problem matchers
-              run: |
-                  echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-                  echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
-            - name: Install dependencies
-              run: |
-                  composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-                  composer update --${{ matrix.stability }} --prefer-dist --no-interaction
-            - name: Execute tests
-              run: vendor/bin/phpunit
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv, imagick, fileinfo
+          coverage: none
+
+      - name: Resolve correct Testbench version
+        id: tb
+        shell: bash
+        run: |
+          case "${{ matrix.laravel }}" in
+            10.*) echo "version=^8.0"  >>"$GITHUB_OUTPUT" ;;
+            11.*) echo "version=^9.0"  >>"$GITHUB_OUTPUT" ;;
+            12.*) echo "version=^10.0" >>"$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Install dependencies
+        run: |
+          composer require \
+            "laravel/framework:${{ matrix.laravel }}" \
+            "orchestra/testbench:${{ steps.tb.outputs.version }}" \
+            --no-interaction --no-update
+          composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress --ansi
+
+      - name: Execute tests
+        run: vendor/bin/phpunit
