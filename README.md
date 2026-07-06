@@ -64,8 +64,22 @@ $response = $exchange_rate->getExchangeRates([
     'lang' => 'en', // Default: it
     'baseCurrencyIsoCode' => 'EUR', // Default: USD
     'currencyIsoCode' => 'ITL', // Default: EUR (accepted values: EUR, USD, ITL)
-    'startDate' => '01-01-2000', // Default: Carbon::now()->subYear() (format: Y-m-d)
-    'endDate' => '01-01-2000' // Default: Carbon::now() (format: Y-m-d)
+    'startDate' => '2000-01-01', // Default: Carbon::now()->subYear() (format: Y-m-d)
+    'endDate' => '2000-01-01' // Default: Carbon::now() (format: Y-m-d)
+]);
+```
+
+### Using the Facade
+
+You can also use the `LaravelBankOfItaly` facade instead of instantiating `ExchangeRate` directly:
+
+```php
+use OfflineAgency\LaravelBankOfItaly\LaravelBankOfItalyFacade as LaravelBankOfItaly;
+
+$exchange_rates = LaravelBankOfItaly::getExchangeRates([
+    'lang' => 'en',
+    'startDate' => '2000-01-01',
+    'endDate' => '2000-01-01'
 ]);
 ```
 

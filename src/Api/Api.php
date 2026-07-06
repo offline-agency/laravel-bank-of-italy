@@ -2,9 +2,7 @@
 
 namespace OfflineAgency\LaravelBankOfItaly\Api;
 
-use OfflineAgency\LaravelBankOfItaly\LaravelBankOfItaly;
-
-class Api extends LaravelBankOfItaly
+class Api
 {
     protected function params(
         array $query_params,

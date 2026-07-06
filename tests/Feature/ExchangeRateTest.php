@@ -41,9 +41,18 @@ class ExchangeRateTest extends TestCase
         ]);
 
         $this->assertInstanceOf(ExchangeRates::class, $response);
-        $this->assertIsArray($response->getItems());
-        $this->assertCount(285, $response->getItems());
-        $this->assertInstanceOf(ExchangeRateEntity::class, $response->getItems()[0]);
+        $items = $response->getItems();
+        $this->assertIsArray($items);
+        // The exact row count fluctuates over time as the Bank of Italy publishes/corrects
+        // historical rates, so assert on structure and boundaries rather than a fixed count.
+        $this->assertNotEmpty($items);
+        $this->assertInstanceOf(ExchangeRateEntity::class, $items[0]);
+        $this->assertSame('2023-08-01', $items[0]->referenceDate);
+        $this->assertSame('2024-09-11', $items[count($items) - 1]->referenceDate);
+
+        foreach ($items as $item) {
+            $this->assertSame('USD', $item->currencyIsoCode);
+        }
     }
 
     public function test_get_exchange_rates_error()
