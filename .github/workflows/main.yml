@@ -2,9 +2,9 @@ name: run-tests
 
 on:
     push:
-        branches: [master]
+        branches: [main]
     pull_request:
-        branches: [master]
+        branches: [main]
 
 jobs:
     test:
@@ -13,12 +13,18 @@ jobs:
             fail-fast: true
             matrix:
                 os: [ubuntu-latest, windows-latest]
-                php: [7.4, 8.0]
-                laravel: [8.*]
+                php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+                laravel: ['12.*', '13.*']
                 stability: [prefer-lowest, prefer-stable]
                 include:
-                    - laravel: 8.*
-                      testbench: ^6.6
+                    - laravel: '12.*'
+                      testbench: ^10.0
+                    - laravel: '13.*'
+                      testbench: ^11.0
+                exclude:
+                    # Laravel 13 requires PHP >= 8.3.
+                    - php: '8.2'
+                      laravel: '13.*'
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
@@ -41,5 +47,18 @@ jobs:
               run: |
                   composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
                   composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+            # PHP 8.6 + Laravel 13 (stable): any deprecation fails the run. Testbench
+            # turns runtime deprecations into exceptions (Laravel would otherwise only
+            # log them). Other cells only display deprecations, because older
+            # framework releases still raise vendor deprecations (e.g. spl_object_hash()
+            # in illuminate/container 12.x) that this package cannot fix.
             - name: Execute tests
-              run: vendor/bin/phpunit
+              shell: bash
+              env:
+                  STRICT_DEPRECATIONS: ${{ matrix.php == '8.6' && matrix.laravel == '13.*' && matrix.stability == 'prefer-stable' }}
+              run: |
+                  if [ "$STRICT_DEPRECATIONS" = "true" ]; then
+                      TESTBENCH_CONVERT_DEPRECATIONS_TO_EXCEPTIONS=true vendor/bin/phpunit --display-deprecations --fail-on-deprecation
+                  else
+                      vendor/bin/phpunit --display-deprecations
+                  fi
