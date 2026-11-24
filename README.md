@@ -11,8 +11,8 @@ A simple Laravel package to retrieve information from the Bank of Italy.
 
 | Laravel | PHP |
 |---------|-----|
-| 12.x | 8.2 – 8.6 |
-| 13.x | 8.3 – 8.6 |
+| 12.x | 8.4 – 8.6 |
+| 13.x | 8.4 – 8.6 |
 
 ## Installation
 
