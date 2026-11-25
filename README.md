@@ -7,6 +7,13 @@
 
 A simple Laravel package to retrieve information from the Bank of Italy.
 
+## Requirements
+
+| Laravel | PHP |
+|---------|-----|
+| 12.x | 8.4 – 8.6 |
+| 13.x | 8.4 – 8.6 |
+
 ## Installation
 
 You can install the package via composer:
